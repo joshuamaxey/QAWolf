@@ -107,12 +107,34 @@ async function sortHackerNewsArticles() {
       return null;
     }
 
-    try {
+      try {
+        // Get the item from the Hacker News API
+          const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
+
+          const storyItem = await response.json();
+
+          if (!storyItem) {
+              console.error("story not found for ID:", id);
+              return null;
+          }
+
+          return storyItem; // If all goes well, return the whole story item
 
     } catch (error) {
-
+        console.error("Error fetching story:", error);
+        return null;
     }
   }
+
+    console.log(articlesWithIds[5].id); // make sure we can grab the id of an article
+
+    // Make an async call to make sure we're returning the correct result
+    (async () => {
+        const story = await fetchStoryItem(articlesWithIds[5].id);
+        console.log(story)
+    })();
+
+    // ^ YEP, we are now able to access a story 'item' which includes the 'time' (creation date, unix time)
 }
 
 (async () => {
