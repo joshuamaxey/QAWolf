@@ -9,7 +9,7 @@ This assignment has two questions as outlined below. When you are done, upload y
 
 ### Question 1
 
-In this assignment, you will create a script on [Hacker News](https://news.ycombinator.com/) using JavaScript and Microsoft's [Playwright](https://playwright.dev/) framework. 
+In this assignment, you will create a script on [Hacker News](https://news.ycombinator.com/) using JavaScript and Microsoft's [Playwright](https://playwright.dev/) framework.
 
 1. Install node modules by running `npm i`.
 
@@ -21,7 +21,7 @@ Note that you are welcome to update Playwright or install other packages as you 
 
 Why do you want to work at QA Wolf? Please record a short, ~2 min video using [Loom](https://www.loom.com/) that includes:
 
-1. Your answer 
+1. Your answer
 
 2. A walk-through demonstration of your code, showing a successful execution
 
@@ -38,7 +38,7 @@ The final round interview is a 2-hour technical work session that reflects what 
 Our hiring process is rolling where we review candidates until we have filled our openings. If there are no openings left, we will keep your contact information on file and reach out when we are hiring again.
 
 ### Having trouble uploading your assignment?
-Be sure to delete your `node_modules` file, then zip your assignment folder prior to upload. 
+Be sure to delete your `node_modules` file, then zip your assignment folder prior to upload.
 
 ### How do you decide who to hire?
 
