@@ -135,6 +135,58 @@ async function sortHackerNewsArticles() {
     })();
 
     // ^ YEP, we are now able to access a story 'item' which includes the 'time' (creation date, unix time)
+
+  // ! Final step: fetch the story items by their id, then add to a new array and sort by their 'time' attribute (creation date in unix time)
+
+  async function fetchAllStoryItems(articles) {
+    const finalArticles = []; // Here's where we'll put the final sorted articles
+
+    try {
+      for (let article of articles) {
+        // Grab the story item by its ID
+        const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`);
+        const storyItem = await response.json();
+
+        if (storyItem) {
+          finalArticles.push(storyItem);
+        } else {
+          console.errorr(`Failed to fetch story item for ID: ${article.id}`);
+        }
+      }
+
+      // Then sort them by their 'time' attribute in descending order (newest first)
+      finalArticles.sort((a, b) => b.time - a.time);
+
+      return finalArticles;
+    } catch (error) {
+      console.error("Error fetching story items:", error);
+      return []; // if it doesn't work just return an empty array for now
+    }
+  }
+
+  // ^ WOO so now we are returning exactly 100 articles, with their details, and they should be in the correct order. But lets verify the order before moving on. Also, move the funciton call above to below so that we can fetch all items and validate their order in a single call
+
+  function validateOrder(articles) {
+    const isValid = articles.every((article, index) => {
+      // skip the first article
+      if (index === 0) return true;
+
+      // Then check to make sure each article's time is less than or equal to the time of the previous article
+      return articles[index - 1].time >= article.time;
+    });
+
+    return isValid;
+  }
+
+  // Moved function call here
+
+  (async () => {
+    const sortedArticles = await fetchAllStoryItems(articlesWithIds);
+    const isCorrectOrder = validateOrder(sortedArticles);
+    console.log("Final Sorted Articles:", sortedArticles);
+    console.log("Number of sorted articles:", sortedArticles.length);
+    console.log("Are articles sorted correctly?", isCorrectOrder);
+  })();
 }
 
 (async () => {
