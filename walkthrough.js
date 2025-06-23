@@ -3,6 +3,8 @@
 import { chromium } from "playwright";
 import fetch from 'node-fetch';
 
+// ! I misread the prompt! We need to go to Hacker News/newest and VALIDATE that exactly the first 100 articles are sorted from newest to oldest. In this code, 
+
 async function sortHackerNewsArticles() {
   // launch browser
   const browser = await chromium.launch({ headless: false });
