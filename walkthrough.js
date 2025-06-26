@@ -1,9 +1,5 @@
 // EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
-// const { chromium } = require("playwright");
 import { chromium } from "playwright";
-import fetch from 'node-fetch';
-
-// ! I misread the prompt! We need to go to Hacker News/newest and VALIDATE that exactly the first 100 articles are sorted from newest to oldest. In this code, 
 
 async function sortHackerNewsArticles() {
   // launch browser
@@ -14,182 +10,149 @@ async function sortHackerNewsArticles() {
   // go to Hacker News
   await page.goto("https://news.ycombinator.com/newest");
 
-  // ! First, grab 100 articles
+  // ! So to navigate to a page and grab elements, we need to:
 
-  // Since we can't directly modify the functionality of the website to display more than a single page (30 articles) of results, we'll grab the articles from the site and store them here
+  // 1. Use a selector to find a group of elemnets
+  // 2. Extract the info from each elements
+  // 3. Return that info into my Node.js context and store it in an array
 
-  let articles = []; // We'll store the titles of the articles here
+  // ^ So lets say that we want to grab all of the titles of the articles on the first page.
+
+  // We can use page.$$eval(selector, callback) to find all of the elements matching our selector, execute our callback, and then return the results back to our script.
+
+  // In this case, every article is a <tr></tr> (table row). Each tr has a <span></span> inside of it with a classname of 'titleline'. Inside of the span is an <a></a> tag, and that a's textContent is the title of the article
+
+  // So we can grab the a elements attached to each .titleline, then access their textContent to get the title of the articles.
+
+  const articleTitles = await page.$$eval('.titleline > a', elements => {
+    return elements.map(el => el.textContent.trim());
+  });
+
+  console.log(articleTitles);
+  console.log(articleTitles.length); // 30, so we are returning 30 results per page by default
+
+  // The Hacker News API (https://github.com/jsuau/hacker-news-api) says that we can grab individual articles by sending a GET request to this url:
+
+  // https://hacker-news.firebaseio.com/v0/item/:id
+
+  // ! So before we move forward, lets try to fetch a single article by its ID. And how do we find the ID?
+
+  // Each article on HackerNews is represented as a <tr></tr> tag with a class of "athing submission". Note that NOT all tr tags are articles! Only those with the "athing submission" class.
+  // And each <tr class="athing submission"></tr> also has an id, which is the article's id. So each article looks like this:
+
+  // <tr class="athing submission" id="12345"></tr>
+
+  // ^ So what we want to do now is search the page for a <tr></tr> that has a classname of "athing submission", grab its 'id' attribute, and make a fetch call to the Hacker News API to make sure we can grab an article this way.
+
+  const firstArticleId = await page.$eval('tr.athing.submission', el => el.id);
+  console.log("First Article ID:", firstArticleId); // Got it!
+
+  // Next, we can use the Hacker News API to fetch this article by its ID.
+
+  const firstArticleResponse = await fetch(`https://hacker-news.firebaseio.com/v0/item/${firstArticleId}.json`);
+  const firstArticleData = await firstArticleResponse.json();
+  console.log("First Article:", firstArticleData); // Got it!
+
+  // I see that when we fetch the article, we are able to access several critical properties: The first is 'time' which is actually the creation date of the article in unix time. We need this to verify the order of the articles. We can also access the 'title' of the article, which I think I want to use to make our result more readable down the line so that we're not just staring at a list of numerical IDs.
+
+  // ! Now that we're able to get an article's id and fetch that article by its ID using the Hacker News API, lets grab the first 100 articles all at once.
+
+  // The Hacker News API makes provides a 'limitToFirst' data filter that can be applied as a query parameter.
+
+  // I think that ultimately what we want to do is grab the first 100 articles, then query for each individual article by it's ID so that we can access the time attribute, and THEN make sure that they are all ordered correctly.
+
+  // For now, lets see if we can just successfully grab the first 100 articles.
+
+  // ^ https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty&limitToFirst=100
+
+  // const firstHundredResponse = await fetch(`https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty&orderBy="$priority"&limitToFirst=100.json`)
+  // const firstHundredData = await firstHundredResponse.json();
+  // console.log(firstHundredData);
+
+  // ! Ok, actually, it looks like this is really only useful for getting the 'top stories' which is not what I'm interested in. I think it would be better to manually grab the first 100 articles using our strategy on line 47, so lets try that instead.
+
+  // So now what we weill do is we'll grab all of the rows (<tr class="athing submission" id="12345"></tr>) and then map over them, grabbing the id and the title from each one before returning them as an array of objects, each with its own id and title.
+
+  const articlesOnPage1 = await page.$$eval('tr.athing.submission', rows => {
+    return rows.map(row => {
+      const id = row.id;
+      const titleElement = row.querySelector('.titleline > a');
+      const title = titleElement ? titleElement.textContent.trim() : null;
+
+      return { id, title };
+    });
+  });
+
+  console.log(articlesOnPage1);
+  console.log(articlesOnPage1.length)
+
+  // ! Ok, now we have all the articles on the first page, each with its ID and its title! Of course, right now we only have 30 because we are only looking at the first page. Lets figure out from here how to grab the first 100 articles.
+
+  // ^ Playwright allows us to interact with elements on the page, like pushing buttons. So lets iterate through the pages on Hacker News until we have 100 results, using our previous strategy for getting the articles and their IDs / titles until we reach the number of articles that we need.
+
+  const articles = [];
 
   while (articles.length < 100) {
-
-    // Each link on the page is a span tag, classname 'titleline'
-    // The span has an <a></a> tag inside, which has a link (href) in addition to the text content
-    // We can use playwright to select the links (page.$$eval grabs by CSS selectors)
-    // So we'll use page.$$eval to grab the <a> tag within the spans with classname 'titleline' (.titleline > a)
-    // then we'll map over the 'links', separating each one into an object with a title (link.textContent) and actual url (link.href)
-
-    const pageArticles = await page.$$eval('.titleline > a', links => {
-      return links.map(link => ({ title: link.textContent, url: link.href }))
-    });
-
-    articles.push(...pageArticles); // Then push the articles to the array
-  }
-
-  console.log(...articles); // check to see if first 30 articles are added;
-  console.log(articles.length) // looks like we are already at more than 30 results, so verify that we have 100
-  // ^ We are already at 100 results, no need to manually iterate through multiple pages to grab results
-
-  // & NOTE After running this code several times, I'm now seeing 120 results. Circle back to this after we figure out how to get the IDs below.
-
-  // ! Then make sure they're ordered by creation date
-
-  // The Hacker News API (https://github.com/HackerNews/API) says that 'items' (such as these stories) are all identified by unique IDs.
-  // It also says that each one has a 'time' attribute which is its creation date in unix tiem.
-  // So lets see if we can use an article's URL to grab its id, then fetch the 'item' which includes its date
-
-
-  function getIdFromUrl(url) {
-    const urlObj = new URL(url); // parse the URL
-    return urlObj.searchParams.get("id");
-  }
-
-  console.log(articles[2].url) // make sure we can access the url from individual articles
-  console.log(getIdFromUrl(articles[3].url)) // make sure we can get the ID from the url
-
-  // & NOTE We are able to access the url, but many article URLs do NOT contain the article's id. Some do, but many don't. So this helper function cannot consistenly deliver the story 'item' with the 'date' attribute that we need.
-
-  // BUT I do see that even though the article's url might not contain the id, it IS tied to an 'upvote' element (a <td></td>, which contains a <center></center>, which contains an <a></a> tag with an id of 'up_<id_number>') that does contain the id.
-
-  // So maybe we can tie the titleline (span) to its (td), then grab the id this way? So lets write a new function to grab the articles, but also with their ids:
-
-  let articlesWithIds = [];
-
-  while (articlesWithIds.length < 100) {
-
-    const pageArticles = await page.$$eval('tr', rows => {
+    const pageArticles = await page.$$eval('tr.athing.submission', rows => {
       return rows.map(row => {
-        // Get the article link
-        const linkElement = row.querySelector('.titleline > a');
-        const link = linkElement ? linkElement.href : null;
-        const title = linkElement ? linkElement.textContent : null;
+        const id = row.id;
+        const link = row.querySelector('.titleline > a');
+        const title = link?.textContent?.trim();
 
-        // Now get the ID from votelinks
-        const votelinksElement = row.querySelector('.votelinks > center > a');
-        const id = votelinksElement ? votelinksElement.id.split('_')[1] : null;
-
-        if (link && id) {
-          return { title, url: link, id }
+        if (id && title) {
+          return { id, title };
         }
-      }).filter(item => item); // get rid of null entries
-    })
-
-    articlesWithIds.push(...pageArticles)
-
-    if (articlesWithIds.length >= 100) {
-      articlesWithIds = articlesWithIds.slice(0, 100); // trim to 100 in case we have more, since we began to return 120 after a while in our initial function above (~line 35).
-      break;
-    }
-  }
-
-  console.log(articlesWithIds); // Check if our articles actually have their ids now
-  console.log(articlesWithIds.length) // Check length
-
-  // ^ NICE. Now we are able to grab all of the articles, and each includes an id. Next we'll check to see if the ids are correct, and that we can use them to fetch the story 'item' that will actually include the date.
-
-  // & NOTE That it might be more efficient to just directly access the Hacker News API and grab the items that way, vs grabbing them all by URL, accessing the IDs, using the IDs to grab the items, then accesssing the date from the item and ordering them that way...once this solution is finished, we will try it that way and determine which is best.
-
-  // So the next step is to try to fetch the story 'item' by one of our article ids. To do this, we'll use node-fetch.
-
-  // Now we'll grab the story 'item' from the Hacker News API using the article's ID.
-  // This will also confirm that the ids for each item are correct
-
-  async function fetchStoryItem(id) {
-    if (!id) {
-      console.error("No ID provided.");
-      return null;
-    }
-
-      try {
-        // Get the item from the Hacker News API
-          const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`);
-
-          const storyItem = await response.json();
-
-          if (!storyItem) {
-              console.error("story not found for ID:", id);
-              return null;
-          }
-
-          return storyItem; // If all goes well, return the whole story item
-
-    } catch (error) {
-        console.error("Error fetching story:", error);
-        return null;
-    }
-  }
-
-    console.log(articlesWithIds[5].id); // make sure we can grab the id of an article
-
-    // Make an async call to make sure we're returning the correct result
-    (async () => {
-        const story = await fetchStoryItem(articlesWithIds[5].id);
-        console.log(story)
-    })();
-
-    // ^ YEP, we are now able to access a story 'item' which includes the 'time' (creation date, unix time)
-
-  // ! Final step: fetch the story items by their id, then add to a new array and sort by their 'time' attribute (creation date in unix time)
-
-  async function fetchAllStoryItems(articles) {
-    const finalArticles = []; // Here's where we'll put the final sorted articles
-
-    try {
-      for (let article of articles) {
-        // Grab the story item by its ID
-        const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`);
-        const storyItem = await response.json();
-
-        if (storyItem) {
-          finalArticles.push(storyItem);
-        } else {
-          console.errorr(`Failed to fetch story item for ID: ${article.id}`);
-        }
-      }
-
-      // Then sort them by their 'time' attribute in descending order (newest first)
-      finalArticles.sort((a, b) => b.time - a.time);
-
-      return finalArticles;
-    } catch (error) {
-      console.error("Error fetching story items:", error);
-      return []; // if it doesn't work just return an empty array for now
-    }
-  }
-
-  // ^ WOO so now we are returning exactly 100 articles, with their details, and they should be in the correct order. But lets verify the order before moving on. Also, move the funciton call above to below so that we can fetch all items and validate their order in a single call
-
-  function validateOrder(articles) {
-    const isValid = articles.every((article, index) => {
-      // skip the first article
-      if (index === 0) return true;
-
-      // Then check to make sure each article's time is less than or equal to the time of the previous article
-      return articles[index - 1].time >= article.time;
+      }).filter(Boolean); // filter our any falsey values (null, undefined, etc)
     });
 
-    return isValid;
+    articles.push(...pageArticles);
+
+    if (articles.length >= 100) break; // Make sure we're not going over
+
+    // Click the 'more' button to navigate to the next page
+    const moreLink = await page.$('a.morelink');
+
+    await Promise.all([
+      page.waitForNavigation(),
+      moreLink.click()
+    ]);
   }
 
-  // Moved function call here
+  let hundredArticles = articles.slice(0, 100);
+  console.log(hundredArticles);
+  console.log(hundredArticles.length);
 
-  (async () => {
-    const sortedArticles = await fetchAllStoryItems(articlesWithIds);
-    const isCorrectOrder = validateOrder(sortedArticles);
-    console.log("Final Sorted Articles:", sortedArticles);
-    console.log("Number of sorted articles:", sortedArticles.length);
-    console.log("Are articles sorted correctly?", isCorrectOrder);
-  })();
+  // ! WOO Ok, so now we've got exactly 100 articles, each with their id and title. So next what we need to do is query for each article individually by its ID, access its 'time' attribute, and then add that time attribute to the object for each article. Once we have that, we should be able to check and verify the order without any problems.
+
+  for (let article of hundredArticles) {
+    const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`)
+    const articleData = await response.json();
+    article.time = articleData?.time;
+  };
+
+  console.log(hundredArticles); // GOT IT, now each article has its 'time' attribute attached.
+  console.log(hundredArticles.length); // just to make sure
+
+  // ! Next, we can sort our articles by their 'time' attribute. After that, we will compare the order of the sorted articles to the order of the original articles. If the orders match, then they are in fact sorted correctly
+
+  let sortedArticles = hundredArticles.sort((a, b) => b.time - a.time);
+  console.log(sortedArticles);
+  console.log(sortedArticles.length);
+
+  // ! We actually don't need to sort the articles ourselves in order to check whethr they are sorted. I thought at first that maybe we should compare the time attributes of the sorted articles to those of the unsorted ones, but I think an easier strategy would be just use .every() to check whether each article of our hundredArticles (which is the list of articles BEFORE we manually sorted them) are ordered by their time attribute.
+
+  // We'll pass in the current article, its index, and the hundredArticles array
+
+  const isSorted = hundredArticles.every((article, i, arr) => {
+
+    if (i === 0) return true; // return true for the first article
+
+    return arr[i - 1].time >= article.time; // make sure that each article is 'older' than the previous one
+  });
+
+  console.log(isSorted); // returns True
 }
+
 
 (async () => {
   await sortHackerNewsArticles();
