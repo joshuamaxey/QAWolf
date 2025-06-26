@@ -138,6 +138,19 @@ async function sortHackerNewsArticles() {
   let sortedArticles = hundredArticles.sort((a, b) => b.time - a.time);
   console.log(sortedArticles);
   console.log(sortedArticles.length);
+
+  // ! We actually don't need to sort the articles ourselves in order to check whethr they are sorted. I thought at first that maybe we should compare the time attributes of the sorted articles to those of the unsorted ones, but I think an easier strategy would be just use .every() to check whether each article of our hundredArticles (which is the list of articles BEFORE we manually sorted them) are ordered by their time attribute.
+
+  // We'll pass in the current article, its index, and the hundredArticles array
+
+  const isSorted = hundredArticles.every((article, i, arr) => {
+
+    if (i === 0) return true; // return true for the first article
+
+    return arr[i - 1].time >= article.time; // make sure that each article is 'older' than the previous one
+  });
+
+  console.log(isSorted); // returns True
 }
 
 
