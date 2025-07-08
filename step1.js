@@ -102,12 +102,10 @@ async function sortHackerNewsArticles() {
         if (id && title) {
           return { id, title };
         }
-      }).filter(Boolean); // filter our any falsey values (null, undefined, etc)
+      })
     });
 
     articles.push(...pageArticles);
-
-    if (articles.length >= 100) break; // Make sure we're not going over
 
     // Click the 'more' button to navigate to the next page
     const moreLink = await page.$('a.morelink');
@@ -160,10 +158,9 @@ async function sortHackerNewsArticles() {
 
   // ^ 2. Maybe we could find a way to solve this problem in constant time, though honestly our complexity for the final solution isn't too bad. And / or maybe we could reduce our solution into a single, easy-to-read function.
 
-  // ^ 3.
+  // ! After some consideration, I have decided to implement the CLI approach. I think this is a great idea, I will credit Harry with the underlying idea and it will still be an original solution since I have no idea how he actually implemented it or any details about his implementation.
 
-  // ! Before moving forward, lets compress our actual solution into a single function below:
-  
+  // See step 2 for the next step in this process
 }
 
 

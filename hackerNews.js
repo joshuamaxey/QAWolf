@@ -1,7 +1,8 @@
-// EDIT THIS FILE TO COMPLETE ASSIGNMENT QUESTION 1
+// ! This file only exists so that we can import the 'sortHackerNewsArticles' function into our CLI without the script running automatically when we start the CLI AND while maintaining the assessment's original required functionality (you can still run 'node index.js' in the console and just run the sortHackerNewsArticles script directly without having to deal with the CLI if you want)
+
 import { chromium } from "playwright";
 
-async function sortHackerNewsArticles() {
+export async function sortHackerNewsArticles() {
   // launch browser
   const browser = await chromium.launch({ headless: false });
   const context = await browser.newContext();
@@ -55,7 +56,3 @@ async function sortHackerNewsArticles() {
   console.log("Number of articles:", hundredArticles.length);
   console.log("Are the articles sorted correctly by creation date?", isSorted);
 }
-
-(async () => {
-  await sortHackerNewsArticles();
-})();
