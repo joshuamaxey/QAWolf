@@ -41,7 +41,7 @@ export async function sortHackerNewsArticles() {
   // Take only the first 100 articles
   let hundredArticles = articles.slice(0, 100);
 
-    console.log("Fetching each article by its ID, then attaching its 'time' attribute...")
+    console.log("Fetching each article by its ID, then accessing their 'time' attribute...")
   // Now lets use the Hacker News API to fetch each article by its ID so that we can access its 'time' attribute and add it to article since that's how we can verify the order
   for (let article of hundredArticles) {
     const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`)
