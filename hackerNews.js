@@ -9,7 +9,9 @@ export async function sortHackerNewsArticles() {
   const page = await context.newPage();
 
   // go to Hacker News
-  await page.goto("https://news.ycombinator.com/newest");
+    await page.goto("https://news.ycombinator.com/newest");
+
+    console.log("Grabbing the first 100 Hacker News articles...");
 
   // First, we will grab the first 100 articles (their IDs and titles)
   const articles = [];
@@ -39,6 +41,7 @@ export async function sortHackerNewsArticles() {
   // Take only the first 100 articles
   let hundredArticles = articles.slice(0, 100);
 
+    console.log("Fetching each article by its ID, then attaching its 'time' attribute...")
   // Now lets use the Hacker News API to fetch each article by its ID so that we can access its 'time' attribute and add it to article since that's how we can verify the order
   for (let article of hundredArticles) {
     const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`)
@@ -46,13 +49,13 @@ export async function sortHackerNewsArticles() {
     article.time = articleData?.time;
   }
 
+    console.log("Verifying sorting order of articles...")
   // Now we can use Array.every() to check the order of the articles
   const isSorted = hundredArticles.every((article, i, arr) => {
     if (i === 0) return true; // ignore the first article
     return arr[i - 1].time >= article.time; // make sure the current article is 'older' than the previous one
   })
 
-  console.log(hundredArticles);
   console.log("Number of articles:", hundredArticles.length);
   console.log("Are the articles sorted correctly by creation date?", isSorted);
 }

@@ -75,4 +75,8 @@ const isSorted = hundredArticles.every((article, i, arr) => {
   console.log(isSorted); // returns True
 ```
 
+## CLI
+
 ## Step 2
+
+## Step 3
