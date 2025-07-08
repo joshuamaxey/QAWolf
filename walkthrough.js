@@ -151,6 +151,19 @@ async function sortHackerNewsArticles() {
   });
 
   console.log(isSorted); // returns True
+
+  // ~ ============================================================================================================
+
+  // ! Ok, now we've done what we need to do. But I'm certain that's the case for every person who completes this task. So what can we do to take a step above and beyond that?
+
+  // ^ 1. Add an interactive CLI into the script. This isn't my idea, it comes from someone who I spoke to that had successfully become employed by QA wolf. Though it isn't original, it's always a good idea to receive and act on guidance given by people who are in the place where I want to be.
+
+  // ^ 2. Maybe we could find a way to solve this problem in constant time, though honestly our complexity for the final solution isn't too bad. And / or maybe we could reduce our solution into a single, easy-to-read function.
+
+  // ^ 3.
+
+  // ! Before moving forward, lets compress our actual solution into a single function below:
+  
 }
 
 
