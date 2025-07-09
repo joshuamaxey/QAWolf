@@ -4,7 +4,7 @@ This walkthrough is a summary roadmap that will detail the process of developing
 
 I have also documented each step of this process in detail within the individual 'step' files, including pseudocode which completely explains my thinking and the iterative problem-solving process as I worked through each step.
 
-## Step 1
+## Step 1 - Sort Hacker News Articles (Verify Sorting Order)
 
 The first step I'll take is actually solving the problem that we are tasked with solving here. We want to run a script on Hacker News that will verify that the first 100 articles are sorted correctly by creation date. Here is what I did to complete step 1:
 
@@ -77,7 +77,7 @@ const isSorted = hundredArticles.every((article, i, arr) => {
 
 ## CLI
 
-I decided to set up a CLI to make my script more interactive, interesting, and to provide myself with the opportunity to continue learning Playwright! I need to **credit another person with the idea to use a CLI**, the implementation is completely original but the idea to utilize a CLI on this assessment was given to me by someone else. I thought it was a great idea and decided to run with it!
+I decided to set up a CLI to make my script more interactive, interesting, and to provide myself with the opportunity to continue learning Playwright!
 
 - I decided to use **inquirer** to create the CLI after a little bit of research because it will allow me to create a user-friendly experience that is visually appealing with very little boilerplate code.
 - The first thing I did was install **inquirer** and create a '**cli.js**', then build a simple *main menu* to serve as the entry point for the CLI.
@@ -125,6 +125,72 @@ async function mainMenu() {
 mainMenu()
 ```
 
-## Step 2
+## Step 2 - Find Duplicate Authors
 
-## Step 3
+Now that our primary task is complete and our CLI is set up, what remains is to write the functions that will allow us to search for duplicate authors among the first 100 articles **and** search through the titles of the first 100 articles by keyword. In step 2, we will build our **findDuplicateAuthors()** function.
+
+### Grab the first 100 articles on the page
+
+- The first thing that I did is grab and re-purpose the code that I used in **sortHackerNewsArticles** to grab the titles and IDs of the first 100 articles, then slice the array from index 0 to index 100 to make sure we've got exactly 100 articles. I won't re-iterate the code here since I've already included it in **Step 1** above.
+
+### Access the 'by' attribute of the articles
+
+- I also re-purposed the same code from step 1 that I used to fetch the articles from the Hacker News API by their unique IDs. Except this time, I targeted the 'by' attribute (which tells us who wrote the article) instead of the 'time' attribute. Since I did make a minor change to this code, I'll include it below:
+
+```js
+for (let article of hundredArticles) {
+        const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${article.id}.json`)
+        const articleData = await response.json();
+        article.author = articleData?.by;
+    }
+```
+
+### Create the author map
+
+- Next, I used an object to create an '**authorMap**' of the authors of our 100 articles. I looped through the '**hundredArticles**' array, adding each author to the map. The author's name is the key, and the value is the number of articles written by that author. I set each author's 'count' to 0 by default, then incremented it by 1 each time we encounter the author after that:
+
+```js
+const authorMap = {};
+
+    for (let article of hundredArticles) { // loop through all 100 articles
+        const author = article.author;
+
+        if (author) {
+            authorMap[author] = (authorMap[author] || 0) + 1; // Each time we encounter an author, we will increment the 'count' of that author by 1
+        }
+    }
+```
+
+### Build the 'duplicate authors' array
+
+- Next, I looped through the authors in our **authorMap** using a for/in loop. If the author located at the current index of the array has a 'count' that is more than 1, I add that author to the '**duplicates**' array along with its **count**, the nubmer of articles written by that author:
+
+```js
+const duplicates = [];
+
+    for (let author in authorMap) {
+        const count = authorMap[author];
+
+        if (count > 1) {
+            duplicates.push({ author, count }); // If the author has more than one article, add them to the duplicates array with their count
+        }
+    }
+```
+
+### Print the duplicates
+
+- Finally, I looped through the **duplicates** array and printed each author's name as well as their count so that the user can clearly see which authors have written more than one article and the number of articles written by that author. I also accounted for a situation where there are no duplicate authors among the first 100 articles.
+
+```js
+if (duplicates.length > 0) {
+        console.log("\nAuthors with multiple articles:\n");
+
+        for (const dup of duplicates) {
+            console.log(`${dup.author} has ${dup.count} articles`);
+        }
+    } else {
+        console.log("No duplicate authors found within the first 100 articles!")
+    }
+```
+
+## Step 3 - Search Articles by Keyword

@@ -11,7 +11,7 @@ export async function sortHackerNewsArticles() {
   // go to Hacker News
     await page.goto("https://news.ycombinator.com/newest");
 
-    console.log("Grabbing the titles and names of the first 100 Hacker News articles...");
+    console.log("Grabbing the titles and IDs of the first 100 Hacker News articles...");
 
   // First, we will grab the first 100 articles (their IDs and titles)
   const articles = [];
@@ -56,6 +56,6 @@ export async function sortHackerNewsArticles() {
     return arr[i - 1].time >= article.time; // make sure the current article is 'older' than the previous one
   })
 
-  console.log("Number of articles:", hundredArticles.length);
-  console.log("Are the articles sorted correctly by creation date?", isSorted);
+  console.log("\nNumber of articles:", hundredArticles.length);
+  console.log("Are the articles sorted correctly by creation date?", isSorted, "\n");
 }

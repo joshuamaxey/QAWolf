@@ -6,9 +6,9 @@ import { searchByKeyword } from './step3.js';
 
 async function mainMenu() {
     const action = await select({
-        message: `Hello! Welcome to the main menu. What would you like to do?`,
+        message: `\nWelcome to the main menu. What would you like to do?`,
         choices: [
-            { name: 'Verify sorting ordder of Hacker News articles', value: 'verify' },
+            { name: 'Verify sorting order of Hacker News articles', value: 'verify' },
             { name: 'Find duplicate authors of Hacker News articles', value: 'authors' },
             { name: 'Search Hacker News articles by keyword', value: 'search' },
             { name: 'Exit', value: 'exit' }
