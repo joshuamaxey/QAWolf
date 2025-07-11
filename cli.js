@@ -1,8 +1,7 @@
 import { select } from '@inquirer/prompts';
-import input from '@inquirer/input';
 import { sortHackerNewsArticles } from './hackerNews.js';
-import { findDuplicateAuthors } from "./step2.js";
-import { searchByKeyword } from './step3.js';
+import { findDuplicateAuthors } from "./step2_findDuplicateAuthors.js";
+import { searchByKeyword } from './step3_searchByKeyword.js';
 
 async function mainMenu() {
     const action = await select({
