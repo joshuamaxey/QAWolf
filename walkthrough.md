@@ -236,7 +236,7 @@ if (matches.length > 0) {
         }
 ```
 
-### **Close the browser** after running the scripts
+### **Close the browser** after running the scriptsq
 
 - After I tested these functions through the CLI a few times, I realized that I had several chromium windows open. By the time I recognized this, they were all in an unresponsive state. I had to shut down WSL altogether in order to finally get them to close! So I went back and wrapped each of the functions (from step 1, 2, and 3) in a try / finally block and made sure that the browser closes after each task has been performed:
 
@@ -253,3 +253,10 @@ try {
 } finally {
     browser.close();
 }
+```
+
+## Step 4 - Testing with Playwright
+
+- Now that the fundamental goal of this assessment is complete and we've implemented a CLI that allows us to perform a few additional functions, it's time to write some tests.
+
+### Create a spec.js file to test our sortHackerNewsArticles function
