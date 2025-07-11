@@ -6,7 +6,7 @@ import { searchByKeyword } from './step3.js';
 
 async function mainMenu() {
     const action = await select({
-        message: `\nWelcome to the main menu. What would you like to do?`,
+        message: `\nWhat would you like to do?`,
         choices: [
             { name: 'Verify sorting order of Hacker News articles', value: 'verify' },
             { name: 'Find duplicate authors of Hacker News articles', value: 'authors' },
@@ -23,8 +23,7 @@ async function mainMenu() {
             await findDuplicateAuthors();
             break;
         case 'search':
-            const keyword = await input({ message: "Enter keyword:" })
-            await searchByKeyword(keyword);
+            await searchByKeyword();
             break;
         case 'exit':
             console.log("Goodbye!");

@@ -9,6 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "@inquirer/prompts": "^7.6.0",
+    "inquirer": "^12.7.0",
     "node-fetch": "^3.3.2",
     "playwright": "^1.39.0"
   },
