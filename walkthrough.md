@@ -194,3 +194,62 @@ if (duplicates.length > 0) {
 ```
 
 ## Step 3 - Search Articles by Keyword
+
+The third step I took was to build a **searchByKeyword** function that will take in a keyword from the user, then search through the titles of the first 100 Hacker News articles and return all of the articles that match the keyword. Here's the process involved in building this function:
+
+### Get the first 100 articles
+
+- The first thing that I did is grab and re-purpose the code that I used in **sortHackerNewsArticles** to grab the titles and IDs of the first 100 articles, then slice the array from index 0 to index 100 to make sure we've got exactly 100 articles. I won't re-iterate the code here since I've already included it in **Step 1** above.
+
+### Write the logic for prompting the user for the keyword to search by
+
+- **Inquirer** makes this pretty easy, I just wrote the prompt, converted the string to lowercase, then trimmed any potential whitespace. This code looked cleaner and felt more intuitive when I made it a helper function, so that's what I did:
+
+```js
+async function promptForKeyword() {
+            const { keyword } = await inquirer.prompt([
+                {
+                    type: 'input',
+                    name: 'keyword',
+                    message: 'Enter a keyword to search Hacker News titles:',
+                }
+            ]);
+            return keyword.toLowerCase().trim()
+        }
+
+        const userKeyword = await promptForKeyword();
+```
+
+### Filter and return the articles by keyword
+
+- The last task involved in step 3 was to actually filter the hundred articles by the keyword. I also added a little bit of formatting to the response so that it looks clean in the UI, and accounted for the situation where there are no articles with titles that match the keyword:
+
+```js
+if (matches.length > 0) {
+            console.log(`\nFound ${matches.length} matching articles for "${userKeyword}":\n`)
+
+            matches.forEach(article => {
+                console.log(`[${article.id}]: ${article.title}`);
+            })
+        } else {
+            console.log(`\nNo articles found matching the keyword ${userKeyword}.`)
+        }
+```
+
+### **Close the browser** after running the scripts
+
+- After I tested these functions through the CLI a few times, I realized that I had several chromium windows open. By the time I recognized this, they were all in an unresponsive state. I had to shut down WSL altogether in order to finally get them to close! So I went back and wrapped each of the functions (from step 1, 2, and 3) in a try / finally block and made sure that the browser closes after each task has been performed:
+
+```js
+
+const browser = await chromium.launch({ headless: false });
+
+try {
+        const context = await browser.newContext();
+        const page = await context.newPage();
+
+        // The rest of the code goes here...
+
+} finally {
+    browser.close();
+}
