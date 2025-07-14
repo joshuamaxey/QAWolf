@@ -260,3 +260,77 @@ try {
 - Now that the fundamental goal of this assessment is complete and we've implemented a CLI that allows us to perform a few additional functions, it's time to write some tests.
 
 ### Create a spec.js file to test our sortHackerNewsArticles function
+
+- I created a test suite called **sortHackerNewsArticles.spec.js** and wrote several basic unit tests that verify the following:
+
+1. Whether we are able to successfully detect that articles are sorted by timestamp:
+
+```js
+test('Articles are sorted in descending order by time', () => {
+
+    // Lets add some fake data
+    const articles = [
+        { id: 1, time: 300 },
+        { id: 2, time: 200 },
+        { id: 3, time: 100 }
+    ];
+
+    // Now we'll import the same logic that we use within our function
+    const isSorted = articles.every((article, i, arr) => {
+      if (i === 0) return true; // ignore the first article
+      return arr[i - 1].time >= article.time; // make sure the current article is 'older' than the previous one
+    })
+
+    expect(isSorted).toBe(true);
+})
+```
+
+2. Whether we can detect that articles are sorted incorrectly:
+
+```js
+test('Articles are NOT sorted in descending order by time', () => {
+
+    // Copy the same fake data from above except mix up the times
+    const articles = [
+        { id: 1, time: 300 },
+        { id: 2, time: 100 },
+        { id: 3, time: 200 }
+    ];
+
+    // Copy the sorting logic again
+    const isSorted = articles.every((article, i, arr) => {
+      if (i === 0) return true; // ignore the first article
+      return arr[i - 1].time >= article.time; // make sure the current article is 'older' than the previous one
+    })
+
+    expect(isSorted).toBe(false);
+})
+```
+
+3. Whether we can correctly fetch the articles, then query for them and add their 'time' attribute to each article
+
+```js
+export async function getLatestArticleID() {
+    const browser = await chromium.launch();
+    const page = await browser.newPage();
+    await page.goto("https://news.ycombinator.com/newest");
+
+    const articleId = await page.$eval('tr.athing.submission', row => row.id);
+
+    // ...CLOSE. THE. BROWSER.
+    await browser.close()
+
+    return articleId;
+}
+
+test('Fetches article time from Hacker News API', async () => {
+    const articleId = await getLatestArticleID();
+    const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${articleId}.json`)
+    const data = await response.json();
+
+    expect(data).toHaveProperty('time');
+    expect(typeof data.time).toBe('number');
+})
+```
+
+When we run **npx playwright test tests/sortHackerNewsArticles.spec.js** from our root directory, all of these tests are passing so we know that things are working the way that they should.
