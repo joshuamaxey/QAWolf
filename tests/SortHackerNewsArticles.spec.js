@@ -1,6 +1,8 @@
 import { test, expect, chromium } from '@playwright/test';
 
-// ! Lets start by testing a clear and simple chunk of logic from the sortHackerNewsArticles function, maybe verifying whether an array of articles is sorted by descending 'time'
+// ! SortHackerNewsArticles
+
+// * Sorting Logic
 
 test('Articles are sorted in descending order by time', () => {
 
@@ -20,7 +22,8 @@ test('Articles are sorted in descending order by time', () => {
     expect(isSorted).toBe(true);
 })
 
-// Looks like it is best practice to add a 'Failing Case' as well to make sure that the logic breaks when it should
+// * Make sure we fail when we're supposed to
+
 test('Articles are NOT sorted in descending order by time', () => {
 
     // Copy the same fake data from above except mix up the times
@@ -39,9 +42,9 @@ test('Articles are NOT sorted in descending order by time', () => {
     expect(isSorted).toBe(false);
 })
 
-// ! Alright! Sorting logic has been tested. Next, lets try something a little bit more difficult. I want to test the logic that we use to grab the 'time' metadata from the Hacker News API.
+// * Now lets make sure that we can fetch the article by its ID and access it's time attribute.
 
-// The first thing we need to do is get an ID from one of the articles on Hacker news. That way we can use it to ping the API and try to grab the time attribute! I'm gonna extract this into a helper funciton so that we can use it in other tests down the line if we need an ID for them as well.
+// First lets grab the article
 export async function getLatestArticleID() {
     const browser = await chromium.launch();
     const page = await browser.newPage();
@@ -55,7 +58,7 @@ export async function getLatestArticleID() {
     return articleId;
 }
 
-// Now we'll write the test. We want to make sure that we are able to fetch the article by its ID and access its time attribute. This is the same logic that I used in the original function, just simplified a little bit.
+// We want to make sure that we are able to fetch the article by its ID and access its time attribute. This is the same logic that I used in the original function, just simplified a little bit.
 test('Fetches article time from Hacker News API', async () => {
     const articleId = await getLatestArticleID();
     const response = await fetch(`https://hacker-news.firebaseio.com/v0/item/${articleId}.json`)
@@ -64,3 +67,5 @@ test('Fetches article time from Hacker News API', async () => {
     expect(data).toHaveProperty('time');
     expect(typeof data.time).toBe('number');
 })
+
+

@@ -257,7 +257,7 @@ try {
 
 ## Step 4 - Testing with Playwright
 
-- Now that the fundamental goal of this assessment is complete and we've implemented a CLI that allows us to perform a few additional functions, it's time to write some tests.
+- Now that the fundamental goal of this assessment is complete and I've implemented a CLI that allows us to perform a few additional functions, it's time to write some tests.
 
 ### Create a spec.js file to test our sortHackerNewsArticles function
 
