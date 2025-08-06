@@ -4,7 +4,7 @@ import { chromium } from "playwright";
 
 export async function sortHackerNewsArticles() {
   // launch browser
-  const browser = await chromium.launch({ headless: false });
+  const browser = await chromium.launch({ headless: true });
 
   try {
     const context = await browser.newContext();

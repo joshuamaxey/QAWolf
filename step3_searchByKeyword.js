@@ -3,7 +3,7 @@ import inquirer from 'inquirer';
 
 export async function searchByKeyword() {
     // launch browser
-    const browser = await chromium.launch({ headless: false });
+    const browser = await chromium.launch({ headless: true });
 
     try {
         const context = await browser.newContext();

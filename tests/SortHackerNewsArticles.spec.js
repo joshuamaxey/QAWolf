@@ -42,7 +42,7 @@ test('Articles are NOT sorted in descending order by time', () => {
     expect(isSorted).toBe(false);
 })
 
-// * Now lets make sure that we can fetch the article by its ID and access it's time attribute.
+// * Make sure that we can fetch the article by its ID and access it's time attribute.
 
 // First lets grab the article
 export async function getLatestArticleID() {
@@ -67,5 +67,3 @@ test('Fetches article time from Hacker News API', async () => {
     expect(data).toHaveProperty('time');
     expect(typeof data.time).toBe('number');
 })
-
-
