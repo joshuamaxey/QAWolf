@@ -3,7 +3,7 @@ import { chromium } from "playwright";
 
 async function sortHackerNewsArticles() {
   // launch browser
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({ headless: false });
 
   try {
     const context = await browser.newContext();

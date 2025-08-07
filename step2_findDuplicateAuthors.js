@@ -2,7 +2,7 @@ import { chromium } from "playwright";
 
 export async function findDuplicateAuthors() {
     // launch browser
-    const browser = await chromium.launch({ headless: true });
+    const browser = await chromium.launch({ headless: false });
     try {
         const context = await browser.newContext();
         const page = await context.newPage();

@@ -79,7 +79,7 @@ const isSorted = hundredArticles.every((article, i, arr) => {
 
 I decided to set up a CLI to make my script more interactive, interesting, and to provide myself with the opportunity to continue learning Playwright!
 
-- I decided to use **inquirer** to create the CLI after a little bit of research because it will allow me to create a user-friendly experience that is visually appealing with very little boilerplate code.
+- I decided to use **inquirer** to create the CLI, I'm familiar with this library from some of my projects at App Academy and I really like it because it's super simple to use and looks cool too.
 - The first thing I did was install **inquirer** and create a '**cli.js**', then build a simple *main menu* to serve as the entry point for the CLI.
 - I decided to give the user a choice between three functions: 1: **verify the sorting order of the first 100 articles**, 2: **Check the first 100 articles for duplicate authors**, 3: **To search the titles of the first 100 articles by a keyword which the user will provide as input**
 - I have also maintained the original structure of this assessment, ensuring that you are still able to run '**node index.js**' to check that the '**sortHackerNewsArticles()**' function is working the way that it should independently and that the original assessment requirements have been met without having to deal with the CLI.
