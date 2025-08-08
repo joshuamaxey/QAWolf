@@ -11,7 +11,7 @@ export async function goToHackerNewsLogin(page) {
     await page.getByRole('link', { name: 'login' }).click();
 }
 
-// Signup for a new account
+// Log in to Hacker News
 export async function loginHackerNews(page) {
     await goToHackerNewsLogin(page);
 
@@ -23,4 +23,14 @@ export async function loginHackerNews(page) {
     await loginForm.locator('input[name="pw"]').fill("password")
 
     await loginForm.getByRole('button', { name: 'login' }).click();
+}
+
+// Log out of Hacker News
+export async function logoutHackerNews(page) {
+    await page.locator('#logout').click();
+}
+
+// Go to profile page
+export async function goToProfilePageHN(page) {
+    await page.locator('#me').click();
 }
